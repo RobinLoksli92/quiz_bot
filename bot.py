@@ -4,7 +4,9 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from telegram import ReplyKeyboardMarkup
 import logging
+import random
 
+from main import get_questions
 
 def start(update: Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
@@ -21,7 +23,11 @@ def help(update: Update, context: CallbackContext):
 
 def echo(update: Update, context: CallbackContext):
     """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    user_reply = update.message.text
+    if user_reply == 'Новый вопрос':
+        questions_and_answers = get_questions()
+        question, answer = random.choice(list(questions_and_answers.items()))
+        update.message.reply_text(text=question)
 
 
 def error(update: Update, context: CallbackContext, error):
