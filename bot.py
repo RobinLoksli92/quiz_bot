@@ -1,25 +1,30 @@
 import os
 from dotenv import load_dotenv
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import ReplyKeyboardMarkup
 import logging
 
 
-def start(update, context):
+def start(update: Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+    update.message.reply_text(
+        text='Привет! Я бот для викторин!',
+        reply_markup=ReplyKeyboardMarkup([['Новый вопрос', 'Сдаться'], ['Мой счёт']])
+        )
 
 
-def help(update, context):
+def help(update: Update, context: CallbackContext):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
 
 
-def echo(update, context):
+def echo(update: Update, context: CallbackContext):
     """Echo the user message."""
     update.message.reply_text(update.message.text)
 
 
-def error(update, context, error):
+def error(update: Update, context: CallbackContext, error):
     """Log Errors caused by Updates."""
     logging.logger.warning('Update "%s" caused error "%s"', update, error)
 
