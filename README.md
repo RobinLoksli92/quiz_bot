@@ -22,11 +22,13 @@ questions/znvd98.txt
 ```
 
 ### Телеграм-бот
+Ссылка на бота: [Телеграм бот](https://t.me/meetup_dvmn_bot)
 Запустите бота командой:
 ```python
 python tg_bot.py
 ```
 ### Вконтакте-бот
+Ccылка на бота: [VK бот](https://vk.com/club215445170)
 Запустите бота командой:
 ```python
 python vk_bot.py
