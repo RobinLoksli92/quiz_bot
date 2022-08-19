@@ -12,8 +12,8 @@ def get_questions():
 
 
 def main():
-    pass
-
+    quest = get_questions()
+    print(quest)
 
 if __name__ == '__main__':
     main()
