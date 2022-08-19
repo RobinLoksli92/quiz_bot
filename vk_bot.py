@@ -13,7 +13,7 @@ def start(event, vk_api, keyboard):
     user_id = event.user_id
     vk_api.messages.send(
         user_id=user_id,
-        message='Привет, я бот виторин!',
+        message='Привет, я бот викторин!',
         keyboard=keyboard.get_keyboard(),
         random_id=random.randint(1,1000),
     )
