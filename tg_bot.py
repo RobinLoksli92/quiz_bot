@@ -1,6 +1,5 @@
 from functools import partial
 import os
-from turtle import right
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -57,8 +56,13 @@ def handle_solution_attempt(db, update: Update, context: CallbackContext):
     full_answer = questions_and_answers[question]
     answer_without_info = full_answer.split('.')[0]
     if user_answer in answer_without_info:
+        user_score = db.get(f'User_id_{user_id}')
+        if not user_score:
+            user_score = 0
+        db.set(f'User_id_{user_id}', int(user_score)+1)
         update.message.reply_text(
-            text='Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»'
+            text='Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»',
+            reply_markup=ReplyKeyboardMarkup([['Новый вопрос', 'Мой счёт']], resize_keyboard=True)
         )
     else:
         update.message.reply_text(
@@ -79,6 +83,7 @@ def handle_give_up(db, update: Update, context: CallbackContext):
     )
     questions_and_answers = get_questions()
     question, answer = random.choice(list(questions_and_answers.items()))
+    
     update.message.reply_text(
         text=question
         )
@@ -87,12 +92,27 @@ def handle_give_up(db, update: Update, context: CallbackContext):
     return NEW_QUESTION_REQUEST
 
 
+def my_score(db, update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    user_score = db.get(f'User_id_{user_id}')
+    if not user_score:
+        update.message.reply_text(
+            text='Вы еще не набрали баллов.'
+        )
+        return NEW_QUESTION_REQUEST
+
+    update.message.reply_text(
+        text=f'Ваш результат: {user_score}'
+    )
+    return NEW_QUESTION_REQUEST
+
+
 def error(update: Update, context: CallbackContext, error):
     """Log Errors caused by Updates."""
     logging.logger.warning('Update "%s" caused error "%s"', update, error)
 
 
-def cancel(bot, update):
+def cancel(update: Update, context: CallbackContext):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text('Bye! I hope we can talk again some day.',
@@ -103,7 +123,7 @@ def cancel(bot, update):
 
 def main():
     load_dotenv()
-    updater = Updater(os.getenv('TOKEN'))
+    updater = Updater(os.getenv('TG_BOT_TOKEN'))
     
     db = redis.Redis(
         host='redis-13791.c300.eu-central-1-1.ec2.cloud.redislabs.com',
@@ -124,10 +144,9 @@ def main():
         states={
             NEW_QUESTION_REQUEST: [
                 MessageHandler(Filters.regex('Новый вопрос'), partial(handle_new_question_request, db)),
-                MessageHandler(Filters.regex('Попробовать еще раз'), partial(handle_solution_attempt, db)),
+                MessageHandler(Filters.regex('Мой счёт'), partial(my_score, db)),
                 MessageHandler(Filters.regex('Сдаться'), partial(handle_give_up, db)),
                 MessageHandler(Filters.text, partial(handle_solution_attempt, db)),
-                
             ]
         },
 
