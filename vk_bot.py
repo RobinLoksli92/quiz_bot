@@ -1,4 +1,3 @@
-from email import message
 from dotenv import load_dotenv
 import random
 import redis
@@ -104,10 +103,10 @@ def my_score(event, vk_api, keyboard, db):
 def main():
     load_dotenv()
     db = redis.Redis(
-        host='redis-13791.c300.eu-central-1-1.ec2.cloud.redislabs.com',
-        port=os.getenv('REDIS_DB_PORT'),
-        username='default',
-        password='tyJIB0VlvTh3EJplw2QjqbpY6dQZL2Qm',
+        host=os.getenv('REDIS_HOST'),
+        port=os.getenv('REDIS_PORT'),
+        username=os.getenv('REDIS_USERNAME'),
+        password=os.getenv('REDIS_PASSWORD'),
         decode_responses=True,
         charset="utf-8",
         db=0)

@@ -83,7 +83,7 @@ def handle_give_up(db, update: Update, context: CallbackContext):
     )
     questions_and_answers = get_questions()
     question, answer = random.choice(list(questions_and_answers.items()))
-    
+
     update.message.reply_text(
         text=question
         )
@@ -126,10 +126,10 @@ def main():
     updater = Updater(os.getenv('TG_BOT_TOKEN'))
     
     db = redis.Redis(
-        host='redis-13791.c300.eu-central-1-1.ec2.cloud.redislabs.com',
-        port=os.getenv('REDIS_DB_PORT'),
-        username='default',
-        password='tyJIB0VlvTh3EJplw2QjqbpY6dQZL2Qm',
+        host=os.getenv('REDIS_HOST'),
+        port=os.getenv('REDIS_PORT'),
+        username=os.getenv('REDIS_USERNAME'),
+        password=os.getenv('REDIS_PASSWORD'),
         decode_responses=True,
         charset="utf-8",
         db=0)
