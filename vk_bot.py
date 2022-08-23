@@ -19,9 +19,8 @@ def start(event, vk_api, keyboard):
     )
 
 
-def ask_question(event, vk_api, keyboard, db):
+def ask_question(event, vk_api, keyboard, db, questions_and_answers):
     user_id = event.user_id
-    questions_and_answers = get_questions()
     question, answer = random.choice(list(questions_and_answers.items()))
     db.set(user_id, question)
     vk_api.messages.send(
@@ -32,11 +31,10 @@ def ask_question(event, vk_api, keyboard, db):
     )
 
 
-def check_answer(event, vk_api, keyboard, db):
+def check_answer(event, vk_api, keyboard, db, questions_and_answers):
     user_answer = event.text
     user_id = event.user_id
     question = db.get(user_id)
-    questions_and_answers = get_questions()
     full_answer = questions_and_answers[question]
     answer_without_info = full_answer.split('.')[0]
     if user_answer in answer_without_info:
@@ -59,10 +57,9 @@ def check_answer(event, vk_api, keyboard, db):
         )
 
 
-def give_up(event, vk_api, keyboard, db):
+def give_up(event, vk_api, keyboard, db, questions_and_answers):
     user_id = event.user_id
     question = db.get(user_id)
-    questions_and_answers = get_questions()
     full_answer = questions_and_answers[question]
     vk_api.messages.send(
         user_id=user_id,
@@ -110,6 +107,7 @@ def main():
         decode_responses=True,
         charset="utf-8",
         db=0)
+    questions_and_answers = get_questions()
 
     vk_session = vk.VkApi(token=os.getenv('VK_API_TOKEN'))
     vk_api = vk_session.get_api()
@@ -127,13 +125,13 @@ def main():
             if event.text == 'Начать':
                 start(event, vk_api, keyboard)
             elif event.text == 'Новый вопрос':
-                ask_question(event, vk_api, keyboard, db)
+                ask_question(event, vk_api, keyboard, db, questions_and_answers)
             elif event.text == 'Сдаться':
-                give_up(event, vk_api, keyboard, db)
+                give_up(event, vk_api, keyboard, db, questions_and_answers)
             elif event.text == 'Мой счёт':
-                my_score(event, vk_api, keyboard, db)
+                my_score(event, vk_api, keyboard, db, questions_and_answers)
             else:
-                check_answer(event, vk_api, keyboard, db)
+                check_answer(event, vk_api, keyboard, db, questions_and_answers)
 
 
 if __name__ == "__main__":

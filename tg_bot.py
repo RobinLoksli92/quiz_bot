@@ -35,9 +35,8 @@ def help(update: Update, context: CallbackContext):
     update.message.reply_text('Help!')
 
 
-def handle_new_question_request(db, update: Update, context: CallbackContext):
+def handle_new_question_request(db, questions_and_answers, update: Update, context: CallbackContext):
     user_id = update.effective_message.from_user.id
-    questions_and_answers = get_questions()
     question, answer = random.choice(list(questions_and_answers.items()))
     update.message.reply_text(
         text=question,
@@ -48,11 +47,10 @@ def handle_new_question_request(db, update: Update, context: CallbackContext):
     return NEW_QUESTION_REQUEST
 
 
-def handle_solution_attempt(db, update: Update, context: CallbackContext):
+def handle_solution_attempt(db, questions_and_answers, update: Update, context: CallbackContext):
     user_answer = update.message.text
     user_id = update.effective_message.from_user.id
     question = db.get(user_id)
-    questions_and_answers = get_questions()
     full_answer = questions_and_answers[question]
     answer_without_info = full_answer.split('.')[0]
     if user_answer in answer_without_info:
@@ -73,15 +71,13 @@ def handle_solution_attempt(db, update: Update, context: CallbackContext):
     return NEW_QUESTION_REQUEST
 
 
-def handle_give_up(db, update: Update, context: CallbackContext):
+def handle_give_up(db, questions_and_answers, update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     question = db.get(user_id)
-    questions_and_answers = get_questions()
     full_answer = questions_and_answers[question]
     update.message.reply_text(
         text=full_answer
     )
-    questions_and_answers = get_questions()
     question, answer = random.choice(list(questions_and_answers.items()))
 
     update.message.reply_text(
@@ -133,6 +129,8 @@ def main():
         decode_responses=True,
         charset="utf-8",
         db=0)
+    questions_and_answers = get_questions()
+
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
@@ -143,10 +141,10 @@ def main():
 
         states={
             NEW_QUESTION_REQUEST: [
-                MessageHandler(Filters.regex('Новый вопрос'), partial(handle_new_question_request, db)),
+                MessageHandler(Filters.regex('Новый вопрос'), partial(handle_new_question_request, db, questions_and_answers)),
                 MessageHandler(Filters.regex('Мой счёт'), partial(my_score, db)),
-                MessageHandler(Filters.regex('Сдаться'), partial(handle_give_up, db)),
-                MessageHandler(Filters.text, partial(handle_solution_attempt, db)),
+                MessageHandler(Filters.regex('Сдаться'), partial(handle_give_up, db, questions_and_answers)),
+                MessageHandler(Filters.text, partial(handle_solution_attempt, db, questions_and_answers)),
             ]
         },
 
