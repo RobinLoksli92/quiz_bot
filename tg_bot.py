@@ -1,5 +1,6 @@
 from functools import partial
 import os
+from re import A
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -15,7 +16,7 @@ from get_questions import get_questions
 
 logger = logging.getLogger(__name__)
 
-NEW_QUESTION_REQUEST = range(1)
+NEW_QUESTION_REQUEST, ANSWER = range(2)
 
 
 def start(update: Update, context: CallbackContext):
@@ -41,7 +42,7 @@ def handle_new_question_request(db, questions_and_answers, update: Update, conte
         )
     db.set(user_id, question)
 
-    return NEW_QUESTION_REQUEST
+    return ANSWER
 
 
 def handle_solution_attempt(db, questions_and_answers, update: Update, context: CallbackContext):
@@ -59,13 +60,14 @@ def handle_solution_attempt(db, questions_and_answers, update: Update, context: 
             text='Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»',
             reply_markup=ReplyKeyboardMarkup([['Новый вопрос', 'Мой счёт']], resize_keyboard=True)
         )
+        return NEW_QUESTION_REQUEST
     else:
         update.message.reply_text(
             text=f'Неправильно… Попробуешь ещё раз?',
             reply_markup=ReplyKeyboardMarkup([['Сдаться']], resize_keyboard=True)
         )
-
-    return NEW_QUESTION_REQUEST
+        return ANSWER
+    
 
 
 def handle_give_up(db, questions_and_answers, update: Update, context: CallbackContext):
@@ -143,6 +145,9 @@ def main():
             NEW_QUESTION_REQUEST: [
                 MessageHandler(Filters.regex('Новый вопрос'), partial(handle_new_question_request, db, questions_and_answers)),
                 MessageHandler(Filters.regex('Мой счёт'), partial(check_my_score, db)),
+                
+            ],
+            ANSWER: [
                 MessageHandler(Filters.regex('Сдаться'), partial(handle_give_up, db, questions_and_answers)),
                 MessageHandler(Filters.text, partial(handle_solution_attempt, db, questions_and_answers)),
             ]
