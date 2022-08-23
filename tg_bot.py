@@ -13,9 +13,6 @@ import redis
 from get_questions import get_questions
 
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
 logger = logging.getLogger(__name__)
 
 NEW_QUESTION_REQUEST = range(1)
@@ -118,6 +115,9 @@ def cancel(update: Update, context: CallbackContext):
 
 
 def main():
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+                    
     load_dotenv()
     updater = Updater(os.getenv('TG_BOT_TOKEN'))
     
