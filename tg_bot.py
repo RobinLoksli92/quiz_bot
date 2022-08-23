@@ -84,7 +84,7 @@ def handle_give_up(db, questions_and_answers, update: Update, context: CallbackC
         )
     db.set(user_id, question)
 
-    return NEW_QUESTION_REQUEST
+    return ANSWER
 
 
 def check_my_score(db, update: Update, context: CallbackContext):
