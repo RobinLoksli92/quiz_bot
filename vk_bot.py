@@ -78,7 +78,7 @@ def give_up(event, vk_api, keyboard, db, questions_and_answers):
     db.set(user_id, question)
 
 
-def my_score(event, vk_api, keyboard, db):
+def check_my_score(event, vk_api, keyboard, db):
     user_id = event.user_id
     user_score = db.get(f'User_id_{user_id}')
     if not user_score:
@@ -129,7 +129,7 @@ def main():
             elif event.text == 'Сдаться':
                 give_up(event, vk_api, keyboard, db, questions_and_answers)
             elif event.text == 'Мой счёт':
-                my_score(event, vk_api, keyboard, db, questions_and_answers)
+                check_my_score(event, vk_api, keyboard, db, questions_and_answers)
             else:
                 check_answer(event, vk_api, keyboard, db, questions_and_answers)
 

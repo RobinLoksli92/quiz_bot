@@ -85,7 +85,7 @@ def handle_give_up(db, questions_and_answers, update: Update, context: CallbackC
     return NEW_QUESTION_REQUEST
 
 
-def my_score(db, update: Update, context: CallbackContext):
+def check_my_score(db, update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     user_score = db.get(f'User_id_{user_id}')
     if not user_score:
@@ -100,7 +100,7 @@ def my_score(db, update: Update, context: CallbackContext):
     return NEW_QUESTION_REQUEST
 
 
-def error(update: Update, context: CallbackContext, error):
+def catch_error(update: Update, context: CallbackContext, error):
     """Log Errors caused by Updates."""
     logging.logger.warning('Update "%s" caused error "%s"', update, error)
 
@@ -117,7 +117,7 @@ def cancel(update: Update, context: CallbackContext):
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-                    
+
     load_dotenv()
     updater = Updater(os.getenv('TG_BOT_TOKEN'))
     
@@ -142,7 +142,7 @@ def main():
         states={
             NEW_QUESTION_REQUEST: [
                 MessageHandler(Filters.regex('Новый вопрос'), partial(handle_new_question_request, db, questions_and_answers)),
-                MessageHandler(Filters.regex('Мой счёт'), partial(my_score, db)),
+                MessageHandler(Filters.regex('Мой счёт'), partial(check_my_score, db)),
                 MessageHandler(Filters.regex('Сдаться'), partial(handle_give_up, db, questions_and_answers)),
                 MessageHandler(Filters.text, partial(handle_solution_attempt, db, questions_and_answers)),
             ]
@@ -151,7 +151,7 @@ def main():
         fallbacks=[CommandHandler('cancel', cancel)]
     )
     dp.add_handler(conv_handler)
-    dp.add_error_handler(error)
+    dp.add_error_handler(catch_error)
     
     updater.start_polling()
 
